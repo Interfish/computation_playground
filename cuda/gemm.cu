@@ -5,15 +5,7 @@
 #include <assert.h>
 #include "cuda_runtime.h"
 
-#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
-inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
-{
-   if (code != cudaSuccess)
-   {
-      fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-      if (abort) exit(code);
-   }
-}
+#include "common.cuh"
 
 __global__ void gemm(float* a, float* b, float* c, int m, int k, int n) {
     // a is a m x k matrix
