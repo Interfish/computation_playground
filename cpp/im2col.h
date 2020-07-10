@@ -50,11 +50,29 @@ void im2col_nchw(float* o, float* ok,  float* i, float* k, int iw, int ih, int k
 void im2col_fluent_read(float* o, float* ok,  float* i, float* k, int iw, int ih, int kw, int kh, int channels, int batchSize, int kernelNums) {
   // Suppose input and kernel is NCHW
   // transform input
+  int kernelSize = kw * kh;
+  int hConvs = ih - kh + 1;
+  int wConvs = iw - kw + 1;
   for (int n = 0; n < batchSize; n++) {
     for (int c = 0; c < channels; c++) {
-      for(int h = 0; h < ih; h++) {
+      for (int h = 0; h < ih; h++) {
         for (int w = 0; w < iw; w++) {
-
+          for (int y = 0; y < kh; y++) {
+            for (int x = 0; x < kw; x++) {
+              int left = x;
+              int top = y;
+              int right = kw - x - 1;
+              int bottom = kh - y - 1;
+              if ((w - left) >=0 && (w + right) < kw && (y - top) >= 0 && (y + bottom) < kh) {
+                int leftTopx = w - left;
+                int leftTopy = y - top;
+                int iStart = i + n * channels * ih * iw + c * ih * iw + h * iw + w;
+                int oStart = o + n * hConvs * wConvs * kernelSize * channels + leftTopy * wConvs * kernelSize * channels \
+                             + leftTopx * kernelSize * channels + c * kernelSize + y * kh + x;
+                o[oStart] = i[iStart];
+              }
+            }
+          }
         }
       }
     }
