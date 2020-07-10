@@ -18,6 +18,9 @@ int main()
         std::cout << "每个EM的最大线程数：" << devProp.maxThreadsPerMultiProcessor << std::endl;
         std::cout << "每个EM的最大线程束数：" << devProp.maxThreadsPerMultiProcessor / 32 << std::endl;
         std::cout << "设备上多处理器的数量： " << devProp.multiProcessorCount << std::endl;
+        cudaSharedMemConfig* pConfig;
+        cudaDeviceGetSharedMemConfig(pConfig);
+        std::cout << "Bank Size type: " << pConfig << std::endl;
         std::cout << "======================================================" << std::endl;
     }
     return 0;
