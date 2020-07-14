@@ -1,8 +1,7 @@
-void im2col_nhwc(float* o, float* ok,  float* i, float* k, int iw, int ih, int kw, int kh, int channels, int batchSize, int kernelNums) {
+void im2col_nhwc(float* o,  float* i, float* k, int iw, int ih, int kw, int kh, int channels, int batchSize, int kernelNums) {
   // Suppose input and kernel is NHWC
   // transform input
   int kernelSize = kw * kh;
-  int ow = kw * kh * channels;
   int hConvs = ih - kh + 1;
   int wConvs = iw - kw + 1;
   for (int n = 0; n < batchSize; n++) {
@@ -11,9 +10,9 @@ void im2col_nhwc(float* o, float* ok,  float* i, float* k, int iw, int ih, int k
         for (int y = 0; y < kh; y++) {
           for (int x = 0; x < kw; x++) {
             int iStart = n * iw * ih * channels + (hStart + y) * iw * channels + (wStart + x) * channels;
-            int oStart = n * hConvs * wConvs * kernelSize * channels + hStart * wStart * kernelSize * channels;
             for (int c = 0; c < channels; c++) {
-              o[oStart + c * kernelSize] = i[iStart + c];
+              int oStart = n * hConvs * wConvs * kernelSize * channels + hStart * wConvs * kernelSize * channels + wStart * kernelSize * channels + (y * kw + x) * c;
+              o[oStart] = i[iStart + c];
             }
           }
         }
@@ -22,11 +21,10 @@ void im2col_nhwc(float* o, float* ok,  float* i, float* k, int iw, int ih, int k
   }
 }
 
-void im2col_nchw(float* o, float* ok,  float* i, float* k, int iw, int ih, int kw, int kh, int channels, int batchSize, int kernelNums) {
+void im2col_nchw(float* o,  float* i, float* k, int iw, int ih, int kw, int kh, int channels, int batchSize, int kernelNums) {
   // Suppose input and kernel is NCHW
   // transform input
   int kernelSize = kw * kh;
-  int ow = kw * kh * channels;
   int hConvs = ih - kh + 1;
   int wConvs = iw - kw + 1;
   for (int n = 0; n < batchSize; n++) {
@@ -37,7 +35,7 @@ void im2col_nchw(float* o, float* ok,  float* i, float* k, int iw, int ih, int k
           for (int y = 0; y < kh; y++) {
             for (int x = 0; x < kw; x++) {
               int iStart = imageStart + (hStart + y) * iw + wStart + x;
-              int oStart = n * hConvs * wConvs * kernelSize * channels + hStart * wStart * kernelSize * channels + c * kernelSize + y * kw + x;
+              int oStart = n * hConvs * wConvs * kernelSize * channels + hStart * wConvs * kernelSize * channels + wStart * kernelSize * channels + c * kernelSize + y * kw + x;
               o[oStart] = i[iStart];
             }
           }
@@ -47,7 +45,7 @@ void im2col_nchw(float* o, float* ok,  float* i, float* k, int iw, int ih, int k
   }
 }
 
-void im2col_fluent_read(float* o, float* ok,  float* i, float* k, int iw, int ih, int kw, int kh, int channels, int batchSize, int kernelNums) {
+void im2col_fluent_read(float* o,  float* i, float* k, int iw, int ih, int kw, int kh, int channels, int batchSize, int kernelNums) {
   // Suppose input and kernel is NCHW
   // transform input
   int kernelSize = kw * kh;
@@ -66,9 +64,9 @@ void im2col_fluent_read(float* o, float* ok,  float* i, float* k, int iw, int ih
               if ((w - left) >=0 && (w + right) < kw && (y - top) >= 0 && (y + bottom) < kh) {
                 int leftTopx = w - left;
                 int leftTopy = y - top;
-                int iStart = i + n * channels * ih * iw + c * ih * iw + h * iw + w;
-                int oStart = o + n * hConvs * wConvs * kernelSize * channels + leftTopy * wConvs * kernelSize * channels \
-                             + leftTopx * kernelSize * channels + c * kernelSize + y * kh + x;
+                int iStart = n * channels * ih * iw + c * ih * iw + h * iw + w;
+                int oStart = n * hConvs * wConvs * kernelSize * channels + leftTopy * wConvs * kernelSize * channels \
+                             + leftTopx * kernelSize * channels + c * kernelSize + y * kw + x;
                 o[oStart] = i[iStart];
               }
             }
