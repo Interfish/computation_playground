@@ -9,10 +9,10 @@ void im2col_nhwc(float* o,  float* i, float* k, int iw, int ih, int kw, int kh, 
       for (int wStart = 0; wStart < wConvs; wStart++) {
         for (int y = 0; y < kh; y++) {
           for (int x = 0; x < kw; x++) {
-            int iStart = n * iw * ih * channels + (hStart + y) * iw * channels + (wStart + x) * channels;
             for (int c = 0; c < channels; c++) {
-              int oStart = n * hConvs * wConvs * kernelSize * channels + hStart * wConvs * kernelSize * channels + wStart * kernelSize * channels + (y * kw + x) * c;
-              o[oStart] = i[iStart + c];
+              int iStart = n * iw * ih * channels + (hStart + y) * iw * channels + (wStart + x) * channels + c;
+              int oStart = n * hConvs * wConvs * kernelSize * channels + hStart * wConvs * kernelSize * channels + wStart * kernelSize * channels + c * kernelSize + y * kw + x;
+              o[oStart] = i[iStart];
             }
           }
         }
@@ -57,13 +57,11 @@ void im2col_fluent_read(float* o,  float* i, float* k, int iw, int ih, int kw, i
         for (int w = 0; w < iw; w++) {
           for (int y = 0; y < kh; y++) {
             for (int x = 0; x < kw; x++) {
-              int left = x;
-              int top = y;
               int right = kw - x - 1;
               int bottom = kh - y - 1;
-              if ((w - left) >=0 && (w + right) < kw && (y - top) >= 0 && (y + bottom) < kh) {
-                int leftTopx = w - left;
-                int leftTopy = y - top;
+              if ((w - x) >= 0 && (w + right) < iw && (h - y) >= 0 && (h + bottom) < ih) {
+                int leftTopx = w - x;
+                int leftTopy = h - y;
                 int iStart = n * channels * ih * iw + c * ih * iw + h * iw + w;
                 int oStart = n * hConvs * wConvs * kernelSize * channels + leftTopy * wConvs * kernelSize * channels \
                              + leftTopx * kernelSize * channels + c * kernelSize + y * kw + x;
