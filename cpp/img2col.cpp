@@ -5,7 +5,7 @@
 #include <ctime>
 #include <assert.h>
 
-#include "../cpp/im2col.h"
+#include "im2col.h"
 
 void setArray(float* array, int size, float value) {
     for (int i = 0 ; i < size; i++)

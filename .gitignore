@@ -33,8 +33,10 @@
 
 build/*
 !build/.keep
-cuda/build
+cuda/build/*
 !cuda/build/.keep
+x86/build/*
+!x86/build/.keep
 prof/*
 !/prof/.keep
 *.prof
