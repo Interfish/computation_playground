@@ -1,4 +1,7 @@
 #include <assert.h>
+#include <chrono>
+#include <iostream>
+#include <iomanip>
 
 #include "conv1d.hpp"
 
@@ -15,13 +18,24 @@ int main(int argc, char *argv[]) {
 
   float* kernelData = new float[inChannels * kernelSize * outChannels];
   float* input = new float[(width + 2 * padding) * inChannels];
-  float* output = new float[outChannels * width];
-
   for(int i = 0; i < inChannels * kernelSize * outChannels; i++)
-    kernelData[i] = 1.0f;
+    kernelData[i] = 1.0;
 
   for(int i = 0; i < (width + 2 * padding) * inChannels; i++)
-    input[i] = 1.0f;
+    input[i] = 1.0;
+
+  auto c_start = std::chrono::high_resolution_clock::now();
+  float* output = new float[outChannels * width];
+  for(int i = 0; i < outChannels * width; i++) {
+    output[i] = 0.0;
+  }
 
   conv1d(input, kernelData, output, inChannels, outChannels, kernelSize, (width + 2 * padding));
+  auto c_end = std::chrono::high_resolution_clock::now();
+  std::cout << std::fixed << std::setprecision(2) << "conv1d time used: "
+            << std::chrono::duration<double, std::milli>(c_end - c_start).count() << " ms" << std::endl;
+  for(int i = 0; i < width * outChannels; i++) {
+    assert(int(output[i]) == kernelSize * inChannels);
+  }
+
 }
