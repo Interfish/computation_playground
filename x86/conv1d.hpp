@@ -19,6 +19,7 @@ void conv1d(float* input, float* kernelData, float* output,
       for(int w = 0; w < width - kernelSize + 1; w++) {
         int outIndex = oc * (width - kernelSize + 1) + w;
         int innerW = 0;
+        float sum = 0.0;
         for(; innerW + 4 <= kernelSize; innerW += 4) {
           auto iwOffside = w + innerW;
           auto i0w4 = _mm_loadu_ps(inWStart0 + iwOffside);
@@ -39,13 +40,14 @@ void conv1d(float* input, float* kernelData, float* output,
           result = _mm_hadd_ps(result, result);
           result = _mm_hadd_ps(result, result);
           // accumulate
-          output[outIndex] += _mm_cvtss_f32(result);
+          sum += _mm_cvtss_f32(result);
           // std::cout << _mm_cvtss_f32(result) << std::endl;
         }
         for(;innerW < kernelSize; innerW++) {
-          output[outIndex] += *(inWStart0 + innerW) + *(inWStart1 + innerW)
-                            + *(inWStart2 + innerW) + *(inWStart3 + innerW);
+          sum += *(inWStart0 + innerW) + *(inWStart1 + innerW)
+                 + *(inWStart2 + innerW) + *(inWStart3 + innerW);
         }
+        output[outIndex] += sum;
       }
     }
   }

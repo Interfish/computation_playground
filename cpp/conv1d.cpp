@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "conv1d.hpp"
+#include "../x86/conv1d.hpp"
 
 int main(int argc, char *argv[]) {
   int inChannels, outChannels, width, kernelSize, padding;

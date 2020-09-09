@@ -40,3 +40,4 @@ x86/build/*
 prof/*
 !/prof/.keep
 *.prof
+computation_lib_compare/dnnl_lnx_1.6.0_cpu_gomp
