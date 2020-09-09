@@ -5,6 +5,7 @@
 #include <ctime>
 #include <cstring>
 #include <iomanip>
+#include <omp.h>
 
 #include "dnnl.hpp"
 
@@ -17,10 +18,16 @@ int main(int argc, char *argv[]) {
   using dt = memory::data_type;
 
   int batch = 1;
-  int in_channels = 512;
-  int width = 22;
-  int out_channels = 512;
-  int kernel_size = 3;
+  int width = atoi(argv[1]);
+  int in_channels = atoi(argv[2]);
+  int out_channels = atoi(argv[3]);
+  int kernel_size = atoi(argv[4]);
+
+  if(argc == 6) {
+    printf("setting num threads to %d\n", atoi(argv[5]));
+    omp_set_num_threads(atoi(argv[5]));
+  }
+
   int padding = int((kernel_size - 1) / 2);
 
   engine eng(engine::kind::cpu, 0);
