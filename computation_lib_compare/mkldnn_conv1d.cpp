@@ -22,13 +22,20 @@ int main(int argc, char *argv[]) {
   int in_channels = atoi(argv[2]);
   int out_channels = atoi(argv[3]);
   int kernel_size = atoi(argv[4]);
+  int dilates = 0;
 
-  if(argc == 6) {
-    printf("setting num threads to %d\n", atoi(argv[5]));
-    omp_set_num_threads(atoi(argv[5]));
+  if (argc >= 6) {
+    dilates = atoi(argv[5]);
+    printf("dilates: %d\n", dilates);
+
   }
 
-  int padding = int((kernel_size - 1) / 2);
+  if(argc >= 7) {
+    printf("setting omp num threads to %d\n", atoi(argv[6]));
+    omp_set_num_threads(atoi(argv[6]));
+  }
+
+  int padding = int((kernel_size - 1) / 2) * (dilates + 1);
 
   engine eng(engine::kind::cpu, 0);
   stream s(eng);
@@ -36,10 +43,11 @@ int main(int argc, char *argv[]) {
   memory::dims conv_src_tz = {batch, in_channels, width};
   memory::dims conv_weights_tz = {out_channels, in_channels, kernel_size};
   memory::dims conv_dst_tz = {batch, out_channels, width};
+  memory::dims conv_dilates = {dilates};
   memory::dims conv_strides = {1};
   memory::dims conv_padding = {padding};
 
-  auto zero_desc = memory::desc();
+  // auto zero_desc = memory::desc();
 
   float* user_src = new float[batch * in_channels * width];
   float* user_weights = new float[kernel_size * in_channels * out_channels];
@@ -55,9 +63,9 @@ int main(int argc, char *argv[]) {
   auto conv_dst_md = memory::desc({conv_dst_tz}, dt::f32, tag::any);
 
   auto conv_desc = convolution_forward::desc(prop_kind::forward_inference,
-            algorithm::convolution_direct, conv_src_md, conv_weights_md,
-            zero_desc, conv_dst_md, conv_strides, conv_padding,
-            conv_padding);
+                   algorithm::convolution_direct, conv_src_md, conv_weights_md,
+                   conv_dst_md, conv_strides, conv_dilates, conv_padding,
+                   conv_padding);
 
   auto conv_prim_desc = convolution_forward::primitive_desc(conv_desc, eng);
 
