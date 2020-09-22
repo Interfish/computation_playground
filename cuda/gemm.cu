@@ -45,10 +45,10 @@ int main(int argc, char *argv[]) {
     float elapsedTime;
     // gemmFast1
     cudaEventCreate(&start);
-    cudaEventRecord(start,0);
+    cudaEventRecord(start, 0);
     gemmFast1<<<grid, block, 2 * kernelSize * kernelSize * sizeof(float)>>>(ad, bd, cd, m, k, n);
     cudaEventCreate(&stop);
-    cudaEventRecord(stop,0);
+    cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsedTime, start, stop);
     std::cout << std::fixed << std::setprecision(2) << "gemmFast kernel time used: "
