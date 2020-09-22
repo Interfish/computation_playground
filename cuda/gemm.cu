@@ -1,8 +1,11 @@
 #include <random>
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 #include <stdio.h>
 #include <assert.h>
+#include <chrono>
+#include <ctime>
 #include "cuda_runtime.h"
 
 #include "common.cuh"
@@ -38,8 +41,18 @@ int main(int argc, char *argv[]) {
     dim3 grid(ceil(float(n) / kernelSize), ceil(float(m) / kernelSize));
 
 
+    cudaEvent_t start, stop;
+    float elapsedTime;
     // gemmFast1
+    cudaEventCreate(&start);
+    cudaEventRecord(start,0);
     gemmFast1<<<grid, block, 2 * kernelSize * kernelSize * sizeof(float)>>>(ad, bd, cd, m, k, n);
+    cudaEventCreate(&stop);
+    cudaEventRecord(stop,0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    std::cout << std::fixed << std::setprecision(2) << "gemmFast kernel time used: "
+              << elapsedTime << "ms" << std::endl;
     gpuErrchk(cudaPeekAtLastError());
     gpuErrchk(cudaDeviceSynchronize());
     gpuErrchk(cudaMemcpy(c, cd, m *n * sizeof(float), cudaMemcpyDeviceToHost));
@@ -51,6 +64,8 @@ int main(int argc, char *argv[]) {
 
     // gemmVanilla
     gemmVanilla<<<grid, block>>>(ad, bd, cd, m, k, n);
+    // std::cout << std::fixed << std::setprecision(2) << "gemmVanilla kernel time used: "
+    //           << double(c_end - c_start) / CLOCKS_PER_SEC << " s" << std::endl;
     gpuErrchk(cudaPeekAtLastError());
     gpuErrchk(cudaDeviceSynchronize());
     gpuErrchk(cudaMemcpy(c, cd, m *n * sizeof(float), cudaMemcpyDeviceToHost));

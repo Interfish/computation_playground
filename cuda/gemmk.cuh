@@ -34,7 +34,7 @@ __global__ void gemmFast1(float* a, float* b, float* c, int m, int k, int n) {
             // printf("%d %d %d %d \n", globalXA, globalYA, globalXB, globalYB);
         }
         if (globalXB < n && globalYB < k) {
-            *(bPoint) = 0.0;//*(b + globalYB * n + globalXB);
+            *(bPoint) = *(b + globalYB * n + globalXB);
         } else {
             *(bPoint) = 0.0;
         }
@@ -42,15 +42,16 @@ __global__ void gemmFast1(float* a, float* b, float* c, int m, int k, int n) {
         //printf("%d %d %d %d %f\n", blockIdx.x, blockIdx.y, threadIdx.x, threadIdx.y, *(aPoint));
 
         for (int index = 0; index < blockDim.x; index++) {
-            // accu += aTile[threadIdx.y * blockDim.x + index] * bTile[index * blockDim.x + threadIdx.x];
+            //accu += float(threadIdx.y * blockDim.x + index + index * blockDim.x + threadIdx.x);
+            accu += aTile[threadIdx.y * blockDim.x + index] * bTile[index * blockDim.x + threadIdx.x];
         }
-        __syncthreads();
+        //__syncthreads();
     }
     // printf("%d %d %d %d %f\n", blockIdx.x, blockIdx.y, threadIdx.x, threadIdx.y, accu);
     globalXC = blockIdx.x * blockDim.x + threadIdx.x;
     globalYC = blockIdx.y * blockDim.y + threadIdx.y;
     if(globalXC < n && globalYC < m) {
-        // c[globalYC * n + globalXC] = accu;
+        c[globalYC * n + globalXC] = accu;
     }
 }
 
