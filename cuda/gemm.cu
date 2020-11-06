@@ -40,6 +40,13 @@ int main(int argc, char *argv[]) {
     dim3 block(kernelSize, kernelSize);
     dim3 grid(ceil(float(n) / kernelSize), ceil(float(m) / kernelSize));
 
+    int minGridSize, blockSize;
+    cudaOccupancyMaxPotentialBlockSize(
+        &minGridSize,
+        &blockSize,
+        (void*)gemmFast1);
+    std::cout << "cudaOccupancyMaxPotentialBlockSize: Grid: " <<
+    minGridSize << " Block: " << blockSize << std::endl;
 
     cudaEvent_t start, stop;
     float elapsedTime;
@@ -58,7 +65,7 @@ int main(int argc, char *argv[]) {
     gpuErrchk(cudaMemcpy(c, cd, m *n * sizeof(float), cudaMemcpyDeviceToHost));
     for (int i = 0; i < m *n; i++) {
         //printf("%d, %f\n", i, c[i]);
-        // assert(c[i] == k);
+        assert(c[i] == k);
     }
 
 
@@ -74,11 +81,11 @@ int main(int argc, char *argv[]) {
 
     // matrixMul_noBankConflict
     // matrixMul_noBankConflict<<<grid, block>>>(cd, ad, bd, k, n);
-    gpuErrchk(cudaPeekAtLastError());
-    gpuErrchk(cudaDeviceSynchronize());
-    gpuErrchk(cudaMemcpy(c, cd, m *n * sizeof(float), cudaMemcpyDeviceToHost));
-    for (int i = 0; i < m *n; i++)
-        assert(c[i] == k);
+    // gpuErrchk(cudaPeekAtLastError());
+    // gpuErrchk(cudaDeviceSynchronize());
+    // gpuErrchk(cudaMemcpy(c, cd, m *n * sizeof(float), cudaMemcpyDeviceToHost));
+    // for (int i = 0; i < m *n; i++)
+    //     assert(c[i] == k);
 
     cudaFree(ad);
     cudaFree(bd);
