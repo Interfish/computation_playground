@@ -1,0 +1,6 @@
+file(GLOB transpose2d_src
+    tranpose2d.cu
+)
+
+ADD_EXECUTABLE(transpose2d, transpose2d_src)
+target_compile_features(transpose2d PUBLIC cxx_std_11)

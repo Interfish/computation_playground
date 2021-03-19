@@ -1,0 +1,8 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+
+PROJECT(computation_playground LANGUAGES CXX CUDA)
+
+find_package(CUDAToolkit)
+
+INCLUDE_DIRECTORIES(common)
+INCLUDE_DIRECTORIES(transpose2d)

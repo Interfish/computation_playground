@@ -42,3 +42,5 @@ prof/*
 *.prof
 *.data
 computation_lib_compare/dnnl_lnx_1.6.0_cpu_gomp
+.vscode
+build
