@@ -1,9 +1,15 @@
-#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
-inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
-{
-   if (code != cudaSuccess)
-   {
-      fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-      if (abort) exit(code);
-   }
+#include <iostream>
+
+#include <cuda_runtime.h>
+
+namespace computation_playground {
+
+#define CUDA_CK(ret) \
+{                                                                                               \
+   if (ret != cudaSuccess) {                                                                    \
+      std::cerr << "CUDA Error: " <<  cudaGetErrorString(code) << __FILE__                      \
+         << std::to_string(__LINE__) << std::endl;                                              \
+   }                                                                                            \
+}
+
 }

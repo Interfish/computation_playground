@@ -1,8 +1,15 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+cmake_minimum_required(VERSION 3.1)
 
-PROJECT(computation_playground LANGUAGES CXX CUDA)
+# nvcc location
+set(ENV{CUDACXX} "/usr/local/cuda/bin/nvcc")
 
-find_package(CUDAToolkit)
+project(computation_playground LANGUAGES CXX CUDA)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CUDA_STANDARD 14)
 
-INCLUDE_DIRECTORIES(common)
-INCLUDE_DIRECTORIES(transpose2d)
+find_package(CUDA)
+include_directories(
+    "${CUDA_INCLUDE_DIRS}"
+)
+add_subdirectory(common)
+add_subdirectory(transpose2d)
