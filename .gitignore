@@ -33,14 +33,11 @@
 
 build/*
 !build/.keep
-cuda/build/*
-!cuda/build/.keep
-x86/build/*
-!x86/build/.keep
-prof/*
-!/prof/.keep
+/packages/*
+!/packages/.keep
 *.prof
 *.data
-computation_lib_compare/dnnl_lnx_1.6.0_cpu_gomp
 .vscode
-build
+*.log
+*.ncu-rep
+*.qdrep
